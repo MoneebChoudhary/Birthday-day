@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happy Birthday 🎂 — Clean v2</title>
+  <!-- Faster font loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    /* Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      background: linear-gradient(135deg, #FFC1E3, #FF7CCC, #FF5176);
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+      perspective: 1200px;
+      overflow-y: hidden; /* Steps are absolutely positioned */
+      scroll-behavior: smooth;
+    }
+
+    /* Common container for steps filling viewport height */
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      gap: 1.25rem;
+    }
+
+    /* Step 1 & 4: centered content */
+    #step1 .container,
+    #step4 .container {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    /* Headings — plain white, no glossy glow */
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(2rem, 8vw, 5rem);
+      letter-spacing: 0.5px;
+      text-shadow: none; /* removed heavy glow for readability */
+      line-height: 1.1;
+      margin-bottom: 0.2em;
+      color: #fff; /* plain white */
+    }
+
+    /* Subheadings (if any) */
+    h2 {
+      font-weight: 600;
+      font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+      text-shadow: none; /* plain */
+      opacity: 0.95;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      max-width: 520px;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+    }
+
+    /* Buttons */
+    button.enter-btn {
+      background: #FF4081;
+      border: none;
+      outline: none;
+      padding: 0.9rem 2.2rem;
+      border-radius: 40px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(255,64,129,0.45);
+      transition: background-color 0.25s ease, transform 0.2s ease;
+      align-self: center;
+    }
+    button.enter-btn:hover { background: #FF1744; transform: translateY(-1px) scale(1.03); }
+    button.enter-btn:active { transform: scale(0.98); }
+
+    /* Surprise button */
+    button.surprise-btn {
+      background: linear-gradient(45deg, #ff65a3, #ff1f6e);
+      border: none;
+      outline: none;
+      padding: 1.1rem 2.6rem;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 18px #ff1f6e66, 0 0 30px #ff65a366;
+      transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+      margin-top: 0.6rem;
+      align-self: center;
+    }
+    button.surprise-btn:hover { background: linear-gradient(45deg, #ff1f6e, #ff65a3); transform: translateY(-1px) scale(1.05); box-shadow: 0 0 28px #ff1f6e80, 0 0 48px #ff65a380; }
+    button.surprise-btn:active { transform: scale(0.97); }
+
+    /* Steps common styles */
+    .step {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease-in-out;
+      overflow: hidden;
+    }
+    .step.active { opacity: 1; pointer-events: auto; }
+
+    /* Step 1 */
+    #step1 h1 { margin-bottom: 0.4em; }
+    #step1 p { margin-bottom: 2.4rem; }
+
+    /* Step 2 — wishes left, rotating gallery right */
+    #step2 .container {
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      gap: 2rem;
+      max-width: 1100px;
+      padding: 2rem 2.2rem;
+    }
+
+    #step2 .wishes { flex: 1; max-width: 460px; text-align: left; }
+    #step2 .wishes h1 { font-size: clamp(2rem, 6vw, 3.8rem); margin-bottom: 0.4em; }
+    #step2 .wishes p { font-size: 1.05rem; margin-bottom: 1rem; }
+
+    #step2 .actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+    #step2 .gallery-rotate-container {
+      width: 100%;
+      height: 360px;
+      perspective: 1200px;
+      flex: 1;
+      max-width: 480px;
+    }
+    #step2 .gallery-rotate {
+      width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+      animation: gallery-spin 30s linear infinite;
+      border-radius: 20px; box-shadow: 0 10px 26px rgba(255, 105, 153, 0.55);
+      background: #e0d6da66;
+      will-change: transform;
+    }
+    #step2 .gallery-rotate:hover { animation-play-state: paused; }
+    #step2 .gallery-item-rotate {
+      position: absolute; width: 200px; height: 320px; border-radius: 20px; overflow: hidden;
+      box-shadow: 0 8px 22px rgba(255, 105, 153, 0.5);
+      cursor: pointer; transition: transform 0.25s ease; will-change: transform;
+    }
+    #step2 .gallery-item-rotate img { width: 100%; height: 100%; object-fit: cover; border-radius: 15px; }
+    #step2 .gallery-item-rotate:hover { transform: scale(1.12) translateZ(50px); box-shadow: 0 18px 32px rgba(255, 105, 153, 0.75); z-index: 20; }
+
+    /* Step 3 — rotating photo grid */
+    #step3 { gap: 1.6rem; }
+    #step3 .container { padding: 1.6rem; }
+    #step3 .gallery-rotate-container { width: 320px; height: 320px; position: relative; perspective: 1000px; margin: 0 auto; }
+    #step3 .gallery-rotate { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-style: preserve-3d; animation: gallery-spin 45s linear infinite; will-change: transform; }
+    #step3 .gallery-rotate:hover { animation-play-state: paused; }
+    #step3 .gallery-item-rotate { position: absolute; width: 110px; height: 110px; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 18px rgba(255, 105, 153, 0.45); cursor: pointer; transition: transform 0.25s ease; will-change: transform; }
+    #step3 .gallery-item-rotate img { width: 100%; height: 100%; object-fit: cover; border-radius: 15px; }
+    #step3 .gallery-item-rotate:hover { transform: scale(1.12) translateZ(35px); box-shadow: 0 14px 26px rgba(245, 108, 150, 0.7); z-index: 10; }
+
+    @keyframes gallery-spin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+
+    /* Step 4 — cake + banners + confetti */
+    #step4 { gap: 1.6rem; position: relative; overflow: hidden; }
+
+    #birthday-banners {
+      position: absolute; top: 0; width: 100%; height: 110px; display: flex; justify-content: center; gap: 16px; align-items: center; pointer-events: none; z-index: 10;
+    }
+    .banner {
+      font-family: 'Great Vibes', cursive; font-size: clamp(1.6rem, 5vw, 2.6rem); color: white; text-shadow: none; /* no gloss */
+      padding: 0.12em 0.32em; border: 1px solid rgba(17,158,214,0.8); border-radius: 14px; background: linear-gradient(45deg, #FFC1E3, #FF7CCC); box-shadow: 0 6px 15px rgba(255, 105, 153, 0.45);
+      animation: banner-wave 3s ease-in-out infinite alternate; will-change: transform;
+    }
+    @keyframes banner-wave { 0% { transform: translateY(0) rotate(0deg);} 100% { transform: translateY(-8px) rotate(3deg);} }
+
+    /* Confetti */
+    .confetti-piece { position: fixed; width: 5px; height: 5px; background-color: #ff5285; opacity: 0.9; pointer-events: none; border-radius: 4px; animation: confetti-fall linear forwards; filter: drop-shadow(0 0 2px #fff1f4); }
+    .confetti-piece:nth-child(odd) { background-color: #ffa1c4; }
+    @keyframes confetti-fall { from { transform: translateY(-5vh) rotate(0deg); opacity: 0.95; } to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+
+    /* Cake image */
+    #step4 .cake-image { max-width: 320px; width: 90vw; border-radius: 22px; box-shadow: 0 12px 36px rgba(255, 105, 153, 0.6); object-fit: contain; filter: drop-shadow(0 0 10px #ff679a55); }
+
+    #step4 footer { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; text-shadow: none; margin-top: 1.3rem; }
+
+    /* Motion-safe mode */
+    @media (prefers-reduced-motion: reduce) {
+      .gallery-rotate, .banner { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <!--
+    📁 Folder guide (does not render on page):
+    Place this HTML file (e.g., index.html) alongside two folders:
+      1) images/  → add your photos here
+         - pic1.jpg, pic2.jpg, pic3.jpg, pic4.jpg, pic5.jpg, pic6.jpg, pic7.jpg, pic8.jpg
+         - chocolate-cake-candles.gif (or your own cake GIF)
+         You can use your own names; if you do, update the src paths in the <img> tags.
+
+      2) music/   → add your background track here
+         - music.mp3  (rename your file to music.mp3 or update the <source src> path below)
+
+    Folder structure example:
+      project-folder/
+        index.html
+        images/
+          pic1.jpg ... pic8.jpg
+          chocolate-cake-candles.gif
+        music/
+          music.mp3
+
+    How to add files:
+      • Drag & drop your photos into images/ and your .mp3 into music/.
+      • If your file names differ, change the src= paths, e.g., src="images/fatima-park.jpg".
+      • Keep gallery photos ~800×1200 JPG (Step 2) and ~400×400 JPG (Step 3) for speed.
+  -->
+
+  <!-- Step 1: Welcome -->
+  <section id="step1" class="step active" aria-label="Welcome and enter">
+    <div class="container">
+      <h1>Happy Birthday, Miss Charm</h1>
+      <p>It’s your day! A small surprise made just for you. Tap Enter to begin.</p>
+      <button class="enter-btn" id="enterToWishesBtn" aria-label="Go to wishes and gallery">Enter</button>
+    </div>
+  </section>
+
+  <!-- Step 2: Wishes + rotating gallery side by side -->
+  <section id="step2" class="step" aria-label="Wishes and rotating photo gallery">
+    <div class="container">
+      <div class="wishes" aria-label="Best wishes and messages">
+        <h1>Best Wishes for You</h1>
+        <p>May today be filled with joy and the little moments that make you smile.</p>
+        <p>Your smile lights up every room here’s to many bright memories ahead.</p>
+        <p>You’ll always be special to me cheering for you always a friend. 🌸</p>
+        <div class="actions">
+          <button class="enter-btn" id="enterToMemoriesBtn" aria-label="Go to photo memories">Next</button>
+          <button class="surprise-btn" id="surpriseBtn" aria-label="Skip to final surprise">Surprise!</button>
+        </div>
+      </div>
+
+      <div class="gallery-rotate-container" aria-label="Rotating photo gallery of memories">
+        <div class="gallery-rotate" id="galleryRotateStep2">
+          <div class="gallery-item-rotate" style="transform: rotateY(0deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic1.jpg" alt="Bouquet of pink roses" loading="eager" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(45deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic2.jpg" alt="Heart-shaped balloons" loading="lazy" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(90deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic3.jpg" alt="Soft glowing candles" loading="lazy" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(135deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic4.jpg" alt="Pink heart string lights" loading="lazy" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(180deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic5.jpg" alt="Romantic beach sunset" loading="lazy" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(225deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic6.jpg" alt="Cupcake with heart frosting" loading="lazy" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(270deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic7.jpg" alt="Delicate pink butterfly" loading="lazy" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(315deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic8.jpg" alt="Pink tulip bouquet" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 3: Photo Memories -->
+  <section id="step3" class="step" aria-label="Rotating photo gallery memory">
+    <div class="container">
+      <h1>Photo Memories</h1>
+      <p>Spin through a circle of your favorite moments.</p>
+      <div class="gallery-rotate-container">
+        <div class="gallery-rotate" id="galleryRotateStep3">
+          <div class="gallery-item-rotate" style="transform: rotateY(0deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic1.jpg" alt="Pink roses bouquet" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(45deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic2.jpg" alt="Heart-shaped balloons" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(90deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic3.jpg" alt="Soft glowing candles" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(135deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic4.jpg" alt="Pink heart string lights" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(180deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic5.jpg" alt="Romantic beach sunset" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(225deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic6.jpg" alt="Cupcake with heart frosting" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(270deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic7.jpg" alt="Delicate pink butterfly" />
+          </div>
+          <div class="gallery-item-rotate" style="transform: rotateY(315deg) translateZ(300px);" tabindex="0">
+            <img src="images/pic8.jpg" alt="Pink tulip bouquet" />
+          </div>
+        </div>
+      </div>
+      <button class="enter-btn" id="enterToCakeBtn" aria-label="Go to birthday cake">Next</button>
+    </div>
+  </section>
+
+  <!-- Step 4: Birthday cake celebration -->
+  <section id="step4" class="step" aria-label="Birthday cake and celebration">
+    <div id="birthday-banners" aria-hidden="true" role="presentation">
+      <div class="banner">H</div><div class="banner">A</div><div class="banner">P</div><div class="banner">P</div><div class="banner">Y</div>
+      <div class="banner">B</div><div class="banner">I</div><div class="banner">R</div><div class="banner">T</div><div class="banner">H</div>
+      <div class="banner">D</div><div class="banner">A</div><div class="banner">Y</div>
+    </div>
+    <div class="container">
+      <h1>Happy Birthday to You! 🎉</h1>
+      <img src="images/chocolate-cake-candles.gif" alt="Birthday cake with lit candles" class="cake-image">
+      <footer>
+        Made with warm wishes.<br>
+        Your friend ..........<br>
+        STAY SAFE · STAY HAPPY
+      </footer>
+    </div>
+  </section>
+
+  <!-- Background music (use a direct .mp3 URL or local file) -->
+  <audio id="bg-music" autoplay loop muted>
+    <!-- Replace src with your actual mp3 file path -->
+    <source src="music/music.mp3" type="audio/mpeg" />
+    Your browser supports the audio element.
+  </audio>
+
+  <script>
+    // Step control references
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const step4 = document.getElementById('step4');
+
+    const btnEnterWishes = document.getElementById('enterToWishesBtn');
+    const btnEnterMemories = document.getElementById('enterToMemoriesBtn');
+    const btnEnterCake = document.getElementById('enterToCakeBtn');
+    const surpriseBtn = document.getElementById('surpriseBtn');
+
+    const bgMusic = document.getElementById('bg-music');
+
+    // Volume fade helper
+    function fadeTo(volume, duration) {
+      return new Promise(resolve => {
+        const start = bgMusic.volume;
+        const delta = volume - start;
+        const steps = Math.max(1, Math.floor(duration / 50));
+        let i = 0;
+        const timer = setInterval(() => {
+          i++;
+          bgMusic.volume = Math.min(1, Math.max(0, start + (delta * i / steps)));
+          if (i >= steps) { clearInterval(timer); resolve(); }
+        }, 50);
+      });
+    }
+
+    // Initialize music volume at 0
+    bgMusic.volume = 0;
+
+    // Unmute on first user interaction (required by many browsers)
+    function enableMusicSound() {
+      if (bgMusic.muted) bgMusic.muted = false;
+      fadeTo(0.20, 800);
+      window.removeEventListener('click', enableMusicSound);
+      window.removeEventListener('touchstart', enableMusicSound);
+    }
+    window.addEventListener('click', enableMusicSound);
+    window.addEventListener('touchstart', enableMusicSound);
+
+    // Step 1 -> Step 2
+    btnEnterWishes.addEventListener('click', async () => {
+      step1.classList.remove('active');
+      step2.classList.add('active');
+      await fadeTo(0.5, 600);
+    });
+
+    // Step 2 -> Step 3 (Next button)
+    btnEnterMemories.addEventListener('click', async () => {
+      step2.classList.remove('active');
+      step3.classList.add('active');
+      await fadeTo(0.6, 800);
+    });
+
+    // Step 2 -> Step 4 (Surprise skip)
+    surpriseBtn.addEventListener('click', async () => {
+      step2.classList.remove('active');
+      step4.classList.add('active');
+      await fadeTo(0.8, 1000);
+      startConfetti();
+    });
+
+    // Step 3 -> Step 4
+    btnEnterCake.addEventListener('click', async () => {
+      step3.classList.remove('active');
+      step4.classList.add('active');
+      await fadeTo(0.8, 1000);
+      startConfetti();
+    });
+
+    // Confetti
+    let confettiInterval;
+    function startConfetti() {
+      confettiInterval = setInterval(() => { createConfettiPiece(); }, 220); // slightly lighter
+      setTimeout(() => { clearInterval(confettiInterval); }, 20000); // stop after 20s
+    }
+
+    function createConfettiPiece() {
+      const confetti = document.createElement('div');
+      confetti.classList.add('confetti-piece');
+      confetti.style.left = Math.random() * window.innerWidth + 'px';
+      confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
+      confetti.style.animationDuration = (3 + Math.random() * 2) + 's';
+      document.body.appendChild(confetti);
+      setTimeout(() => { confetti.remove(); }, 5000);
+    }
+  </script>
+</body>
+</html>
